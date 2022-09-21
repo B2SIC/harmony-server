@@ -26,6 +26,11 @@ public class MemberService {
                 .ifPresent(m -> {
                     throw new IllegalStateException("이미 사용 중인 아이디입니다.");
                 });
+
+        memberRepository.findByPhoneNumber(member.getPhoneNumber())
+                .ifPresent(m -> {
+                    throw new IllegalStateException("이미 사용 중인 휴대폰 번호입니다.");
+                });
     }
 
     public List<Member> findMembers(){

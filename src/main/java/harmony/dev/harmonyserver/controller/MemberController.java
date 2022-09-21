@@ -3,10 +3,13 @@ package harmony.dev.harmonyserver.controller;
 import harmony.dev.harmonyserver.DTO.MemberFindDTO;
 import harmony.dev.harmonyserver.domain.Member;
 import harmony.dev.harmonyserver.service.MemberService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class MemberController {
@@ -19,20 +22,38 @@ public class MemberController {
 
     @PostMapping("/member/join")
     @ResponseBody
-    public String join(@Valid @RequestBody Member member){
-        return memberService.join(member);
+    public Map<String, String> join(@Valid @RequestBody Member member){
+        String result = memberService.join(member);
+        Map<String, String> resultMap = new LinkedHashMap<>();
+
+        if(result.equals("OK")){
+            resultMap.put("message", "OK");
+        }else{
+            resultMap.put("message", "Fail");
+        }
+        return resultMap;
     }
 
     @PostMapping("/member/find")
     @ResponseBody
-    public Optional<Member> find(@Valid @RequestBody MemberFindDTO memberFindDTO){
-        if(memberFindDTO.getType().equals("user_id")){
-            return memberService.findByUserId(memberFindDTO.getKey());
-        }else if(memberFindDTO.getType().equals("phone_number")){
-            return memberService.findByPhoneNumber(memberFindDTO.getKey());
-        }else{
-            throw new IllegalStateException("잘못된 타입입니다.");
-        }
-    }
+    public Map<String, Object> find(@Valid @RequestBody MemberFindDTO memberFindDTO){
+        String memberFindDTOType = memberFindDTO.getType();
+        Map<String, Object> resultMap = new LinkedHashMap<>();
 
+        Optional<Member> result;
+        switch(memberFindDTOType) {
+            case "user_id":
+                result = memberService.findByUserId(memberFindDTO.getKey());
+                break;
+            case "phone_number":
+                result = memberService.findByPhoneNumber(memberFindDTO.getKey());
+                break;
+            default:
+                throw new IllegalStateException("잘못된 타입입니다.");
+        }
+
+        resultMap.put("message", "Success");
+        resultMap.put("result", result);
+        return resultMap;
+    }
 }
