@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,13 +31,19 @@ public class MemberRepositoryTest {
         member2.setPhoneNumber("01022222222");
         memberRepository.save(member2);
 
-        Member userIdTest = memberRepository.findByUserId("testId2").get();
-        assertThat(userIdTest).isEqualTo(member2);
-        assertThat(userIdTest).isNotEqualTo(member1);
+        Optional<Member> userIdTest = memberRepository.findByUserId("testId2");
+        assertThat(userIdTest.isPresent()).isTrue();
+        assertThat(userIdTest.get()).isEqualTo(member2);
+        assertThat(userIdTest.get().getUserId()).isEqualTo(member2.getUserId());
 
-        Member phoneNumberTest = memberRepository.findByPhoneNumber("01011111111").get();
-        assertThat(phoneNumberTest).isEqualTo(member1);
-        assertThat(phoneNumberTest).isNotEqualTo(member2);
+        Optional<Member> phoneNumberTest = memberRepository.findByPhoneNumber("01011111111");
+        assertThat(phoneNumberTest.isPresent()).isTrue();
+        assertThat(phoneNumberTest.get()).isEqualTo(member1);
+        assertThat(phoneNumberTest.get().getPhoneNumber()).isEqualTo(member1.getPhoneNumber());
+
+        // 결과가 존재하지 않음
+        userIdTest = memberRepository.findByUserId("testId3");
+        assertThat(userIdTest.isPresent()).isFalse();
     }
 
     @Test
