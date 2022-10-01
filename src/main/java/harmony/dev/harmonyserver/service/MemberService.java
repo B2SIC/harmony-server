@@ -2,35 +2,37 @@ package harmony.dev.harmonyserver.service;
 
 import harmony.dev.harmonyserver.domain.Member;
 import harmony.dev.harmonyserver.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 @Transactional
+@RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
+    public Pair<Boolean, String> join(Member member) {
+        Pair<Boolean, String> resultPair = validateDuplicateMember(member);
+
+        if (resultPair.getFirst()){
+            memberRepository.save(member);
+        }
+        return resultPair;
     }
 
-    public String join(Member member) {
-        validateDuplicateMember(member);
-        memberRepository.save(member);
-        return "OK";
-    }
-
-    private void validateDuplicateMember(Member member) {
-        memberRepository.findByUserId(member.getUserId())
-                .ifPresent(m -> {
-                    throw new IllegalStateException("이미 사용 중인 아이디입니다.");
-                });
-
-        memberRepository.findByPhoneNumber(member.getPhoneNumber())
-                .ifPresent(m -> {
-                    throw new IllegalStateException("이미 사용 중인 휴대폰 번호입니다.");
-                });
+    private Pair<Boolean, String> validateDuplicateMember(Member member) {
+        if (memberRepository.findByUserId(member.getUserId()).isPresent()){
+            return Pair.of(false, "userId");
+        }else if(memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()){
+            return Pair.of(false, "phoneNumber");
+        }else{
+            return Pair.of(true, "ok");
+        }
     }
 
     public List<Member> findMembers(){
