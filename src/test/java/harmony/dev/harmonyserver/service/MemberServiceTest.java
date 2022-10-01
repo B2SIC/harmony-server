@@ -5,12 +5,12 @@ import harmony.dev.harmonyserver.repository.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.util.Pair;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -24,10 +24,7 @@ public class MemberServiceTest {
      */
     public void join() {
         String testId = "test_id0";
-        Member member = new Member();
-        member.setUserId(testId);
-        member.setPassword("passwd");
-        member.setPhoneNumber("01011112222");
+        Member member = new Member(testId, "password", "01011112222");
         memberService.join(member);
 
         Optional<Member> findMember = memberService.findByUserId(testId);
@@ -42,36 +39,30 @@ public class MemberServiceTest {
         회원가입 중복 아이디 예외 테스트
      */
     public void joinDuplicateId(){
-        Member member1 = new Member();
-        member1.setUserId("forTestId");
-        member1.setPassword("password");
-        member1.setPhoneNumber("01099999999");
-
-        Member member2 = new Member();
-        member2.setUserId("forTestId");
-        member2.setPassword("password");
-        member2.setPhoneNumber("01099999999");
-
+        Member member1 = new Member("forTestId", "password", "01099999999");
+        Member member2 = new Member("forTestId", "password", "01099999999");  // ID Duplication
+        Member member3 = new Member("forTestId2", "password", "01099999999"); // PhoneNumber Duplication
+        Member member4 = new Member("forTestId2", "password", "01088888888"); // OK
         memberService.join(member1);
 
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> memberService.join(member2));
-        assertThat(e.getMessage()).isEqualTo("이미 사용 중인 아이디입니다.");
-        member2.setUserId("forTestId2");
+        Pair<Boolean, String> idDuplicationResult = memberService.join(member2);
+        assertThat(idDuplicationResult.getFirst()).isFalse();
+        assertThat(idDuplicationResult.getSecond()).isEqualTo("userId");
 
-        e = assertThrows(IllegalStateException.class, () -> memberService.join(member2));
-        assertThat(e.getMessage()).isEqualTo("이미 사용 중인 휴대폰 번호입니다.");
-        member2.setPhoneNumber("01088888888");
+        Pair<Boolean, String> phoneNumberDuplicationResult = memberService.join(member3);
+        assertThat(phoneNumberDuplicationResult.getFirst()).isFalse();
+        assertThat(phoneNumberDuplicationResult.getSecond()).isEqualTo("phoneNumber");
 
-        String result = memberService.join(member2);
-        assertThat(result).isEqualTo("OK");
+        Pair<Boolean, String> result = memberService.join(member4);
+        assertThat(result.getFirst()).isTrue();
 
-        Optional<Member> userIdTest = memberService.findByUserId(member1.getUserId());
-        Optional<Member> userId2Test = memberService.findByUserId(member2.getUserId());
+        Optional<Member> forTestIdUser = memberService.findByUserId(member1.getUserId());
+        Optional<Member> forTestId2User = memberService.findByUserId(member4.getUserId());
 
-        assertThat(userIdTest.isPresent()).isTrue();
-        assertThat(userId2Test.isPresent()).isTrue();
-        assertThat(userIdTest.get()).isEqualTo(member1);
-        assertThat(userId2Test.get()).isEqualTo(member2);
+        assertThat(forTestIdUser.isPresent()).isTrue();
+        assertThat(forTestId2User.isPresent()).isTrue();
+        assertThat(forTestIdUser.get()).isEqualTo(member1);
+        assertThat(forTestId2User.get()).isEqualTo(member4);
     }
 
 }
