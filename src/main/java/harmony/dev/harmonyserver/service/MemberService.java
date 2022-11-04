@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -26,9 +25,9 @@ public class MemberService {
     }
 
     private Pair<Boolean, String> validateDuplicateMember(Member member) {
-        if (memberRepository.findByUserId(member.getUserId()).isPresent()){
+        if (!memberRepository.findByUserId(member.getUserId()).isEmpty()){
             return Pair.of(false, "userId");
-        }else if(memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()){
+        }else if(!memberRepository.findByPhoneNumber(member.getPhoneNumber()).isEmpty()){
             return Pair.of(false, "phoneNumber");
         }else{
             return Pair.of(true, "ok");
@@ -39,11 +38,11 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    public Optional<Member> findByUserId(String userId){
+    public List<Member> findByUserId(String userId){
         return memberRepository.findByUserId(userId);
     }
 
-    public Optional<Member> findByPhoneNumber(String phoneNumber){
+    public List<Member> findByPhoneNumber(String phoneNumber){
         return memberRepository.findByPhoneNumber(phoneNumber);
     }
 }
