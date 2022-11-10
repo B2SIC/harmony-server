@@ -6,9 +6,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseDTO {
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private int statusCode;
+
     private String message;
-    private String errorCode;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Object data;
 }
