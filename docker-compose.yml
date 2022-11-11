@@ -12,10 +12,8 @@ services:
       - ./h2/:/opt/h2-data
     restart: always
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
     container_name: server_app
+    image: b2sic/spring-server:latest
     ports:
       - "8080:8080"
     environment:
