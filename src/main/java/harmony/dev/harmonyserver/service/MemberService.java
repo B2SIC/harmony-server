@@ -1,48 +1,60 @@
 package harmony.dev.harmonyserver.service;
 
+import harmony.dev.harmonyserver.Exception.ExceptionSummary;
+import harmony.dev.harmonyserver.Exception.LogicalException;
 import harmony.dev.harmonyserver.domain.Member;
 import harmony.dev.harmonyserver.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.util.Pair;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public Pair<Boolean, String> join(Member member) {
-        Pair<Boolean, String> resultPair = validateDuplicateMember(member);
+    @Autowired
+    public MemberService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
 
-        if (resultPair.getFirst()){
-            memberRepository.save(member);
+    public List<Member> getMembers(Map<String, String> params) {
+        // FIXME: Use constants
+        return memberRepository.findByOptionalParameters(
+            params.get("userId"),
+            params.get("phoneNumber")
+        );
+    }
+
+    public Member signUpMember(Member member) {
+        validateBeforeSignupMember(member);
+        memberRepository.save(member);
+        return member;
+    }
+
+    private void validateBeforeSignupMember(Member member) {
+        // FIXME: Use constants
+        LogicalException e = new LogicalException();
+        if (memberRepository.findByUserId(member.getUserId()).isPresent()) {
+            e.AddExceptionSummary(ExceptionSummary.builder()
+                                                  .field("userId")
+                                                  .value(member.getUserId())
+                                                  .code("Duplicated")
+                                                  .build());
         }
-        return resultPair;
-    }
-
-    private Pair<Boolean, String> validateDuplicateMember(Member member) {
-        if (!memberRepository.findByUserId(member.getUserId()).isEmpty()){
-            return Pair.of(false, "userId");
-        }else if(!memberRepository.findByPhoneNumber(member.getPhoneNumber()).isEmpty()){
-            return Pair.of(false, "phoneNumber");
-        }else{
-            return Pair.of(true, "ok");
+        if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
+            e.AddExceptionSummary(ExceptionSummary.builder()
+                                                  .field("phoneNumber")
+                                                  .value(member.getPhoneNumber())
+                                                  .code("Duplicated")
+                                                  .build());
         }
-    }
 
-    public List<Member> findMembers(){
-        return memberRepository.findAll();
-    }
-
-    public List<Member> findByUserId(String userId){
-        return memberRepository.findByUserId(userId);
-    }
-
-    public List<Member> findByPhoneNumber(String phoneNumber){
-        return memberRepository.findByPhoneNumber(phoneNumber);
+        if (!e.isEmpty()) throw e;
     }
 }

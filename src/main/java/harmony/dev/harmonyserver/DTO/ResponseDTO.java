@@ -1,17 +1,17 @@
 package harmony.dev.harmonyserver.DTO;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
-@NoArgsConstructor
+import harmony.dev.harmonyserver.Exception.ExceptionSummary;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
 public class ResponseDTO {
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private int statusCode;
-
-    private String message;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Object data;
+
+    @Builder.Default
+    private final List<ExceptionSummary> errors = new ArrayList<ExceptionSummary>();
 }
