@@ -6,9 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
-import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Transactional
@@ -18,44 +22,33 @@ public class MemberRepositoryTest {
 
     @Test
     public void findTest(){
-        /*
         Member member1 = new Member("testid1", "password", "01011111111");
+        Member member2 = new Member("testid2", "password", "01011111112");
         memberRepository.save(member1);
-
-        Member member2 = new Member("testid2", "password", "01022222222");
         memberRepository.save(member2);
 
-        List<Member> userIdTest = memberRepository.findByUserId("testid2");
-        assertThat(userIdTest.isEmpty()).isFalse();
-        assertThat(userIdTest.get(0)).isEqualTo(member2);
+        Optional<Member> uniqueMember;
+        List<Member> searchResult;
 
-        List<Member> phoneNumberTest = memberRepository.findByPhoneNumber("01011111111");
-        assertThat(phoneNumberTest.isEmpty()).isFalse();
-        assertThat(phoneNumberTest.get(0)).isEqualTo(member1);
+        uniqueMember = memberRepository.findByUserId(member1.getUserId());
+        assertTrue(uniqueMember.isPresent());
+        assertEquals(member1, uniqueMember.get());
 
-        // 결과가 존재하지 않음
-        userIdTest = memberRepository.findByUserId("testid3");
-        assertThat(userIdTest.isEmpty()).isTrue();
-        */
-    }
+        uniqueMember = memberRepository.findByPhoneNumber(member1.getPhoneNumber());
+        assertTrue(uniqueMember.isPresent());
+        assertEquals(member1, uniqueMember.get());
 
-    @Test
-    public void findAllTest(){
-        /*
-        List<Member> alreadyExists = memberRepository.findAll();
-        int dataCount = alreadyExists.size();
+        uniqueMember = memberRepository.findByUserId("invalid");
+        assertFalse(uniqueMember.isPresent());
 
-        Member member1 = new Member("testid1", "password", "01011111111");
-        memberRepository.save(member1);
+        searchResult = memberRepository.findByOptionalParameters(null, null);
+        assertEquals(2, searchResult.size());
 
-        Member member2 = new Member("testid2", "password", "01022222222");
-        memberRepository.save(member2);
+        searchResult = memberRepository.findByOptionalParameters(member1.getUserId(), null);
+        assertEquals(1, searchResult.size());
+        assertEquals(member1, searchResult.get(0));
 
-        Member member3 = new Member("testid3", "password", "01033333333");
-        memberRepository.save(member3);
-
-        List<Member> result = memberRepository.findAll();
-        assertThat(result.size()).isEqualTo(dataCount + 3);
-        */
+        searchResult = memberRepository.findByOptionalParameters(member1.getUserId(), member2.getPhoneNumber());
+        assertEquals(0, searchResult.size());
     }
 }
