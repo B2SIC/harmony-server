@@ -32,7 +32,7 @@ public class MemberController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseDTO getMembers(@RequestParam Map<String, String> params) {
         return ResponseDTO.builder()
-                          .data(memberService.getMembers(params))
+                          .data(memberService.getMembers(params))  // FIXME: Use DTO
                           .build();
    }
 
@@ -50,7 +50,7 @@ public class MemberController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseDTO signUpMember(@Valid @RequestBody Member member){
         return ResponseDTO.builder()
-                          .data(memberService.signUpMember(member))
+                          .data(memberService.signUpMember(member))  // FIXME: Use DTO
                           .build();
     }
 

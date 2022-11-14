@@ -7,22 +7,22 @@ import lombok.Getter;
 
 // FIXME: Add JavaDoc
 @Getter
-public class LogicalException extends RuntimeException {
+public class BusinessException extends RuntimeException {
     List<ExceptionSummary> exceptions;
 
-    public LogicalException() {
+    public BusinessException() {
         this.exceptions = new ArrayList<ExceptionSummary>();
     }
 
-    public LogicalException(ExceptionSummary e) {
+    public BusinessException(ExceptionSummary e) {
         this.exceptions = List.of(e);
     }
 
-    public boolean AddExceptionSummary(ExceptionSummary e) {
+    public boolean add(ExceptionSummary e) {
         return this.exceptions.add(e);
     }
 
-    public boolean isEmpty() {
-        return this.exceptions.isEmpty();
+    public void peekaboo() {
+        if(!this.exceptions.isEmpty()) throw this;
     }
 }

@@ -1,7 +1,7 @@
 package harmony.dev.harmonyserver.service;
 
 import harmony.dev.harmonyserver.Exception.ExceptionSummary;
-import harmony.dev.harmonyserver.Exception.LogicalException;
+import harmony.dev.harmonyserver.Exception.BusinessException;
 import harmony.dev.harmonyserver.domain.Member;
 import harmony.dev.harmonyserver.repository.MemberRepository;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Transactional
+@Transactional  // FIXME: Move to each transaction method
 public class MemberService {
     private final MemberRepository memberRepository;
 
@@ -39,22 +39,21 @@ public class MemberService {
 
     private void validateBeforeSignupMember(Member member) {
         // FIXME: Use constants
-        LogicalException e = new LogicalException();
+        BusinessException e = new BusinessException();
         if (memberRepository.findByUserId(member.getUserId()).isPresent()) {
-            e.AddExceptionSummary(ExceptionSummary.builder()
-                                                  .field("userId")
-                                                  .value(member.getUserId())
-                                                  .code("Duplicated")
-                                                  .build());
+            e.add(ExceptionSummary.builder()
+                                  .field("userId")
+                                  .value(member.getUserId())
+                                  .code("Duplicated")
+                                  .build());
         }
         if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
-            e.AddExceptionSummary(ExceptionSummary.builder()
-                                                  .field("phoneNumber")
-                                                  .value(member.getPhoneNumber())
-                                                  .code("Duplicated")
-                                                  .build());
+            e.add(ExceptionSummary.builder()
+                                  .field("phoneNumber")
+                                  .value(member.getPhoneNumber())
+                                  .code("Duplicated")
+                                  .build());
         }
-
-        if (!e.isEmpty()) throw e;
+        e.peekaboo();
     }
 }

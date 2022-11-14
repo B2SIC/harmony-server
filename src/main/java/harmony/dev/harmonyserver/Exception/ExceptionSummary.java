@@ -18,7 +18,7 @@ public class ExceptionSummary {
     private final String value;
     private final String message;
 
-    public static List<ExceptionSummary> byBindingResult(BindingResult bindingResult) {
+    public static List<ExceptionSummary> of(BindingResult bindingResult) {
         if(!bindingResult.hasFieldErrors()) return null;
 
         return bindingResult.getFieldErrors().parallelStream()
@@ -29,5 +29,9 @@ public class ExceptionSummary {
                                       .message(e.getDefaultMessage())
                                       .build())
             .collect(Collectors.toList());
+    }
+
+    public static List<ExceptionSummary> of(BusinessException businessException) {
+        return businessException.exceptions;
     }
 }

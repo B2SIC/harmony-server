@@ -1,6 +1,6 @@
 package harmony.dev.harmonyserver.service;
 
-import harmony.dev.harmonyserver.Exception.LogicalException;
+import harmony.dev.harmonyserver.Exception.BusinessException;
 import harmony.dev.harmonyserver.domain.Member;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,28 +26,28 @@ public class MemberServiceTest {
         Member member3 = new Member("testid2", "password", "01011112222");
         Member member4 = new Member("testid2", "password", "01022221111");
 
-        LogicalException logicalException;
+        BusinessException businessException;
 
         assertEquals(member1, memberService.signUpMember(member1));
 
-        logicalException = assertThrows(LogicalException.class, () -> {
+        businessException = assertThrows(BusinessException.class, () -> {
             memberService.signUpMember(member2);
         });
-        assertEquals(1, logicalException.getExceptions().size());
-        assertEquals("userId", logicalException.getExceptions().get(0).getField());
-        assertEquals("Duplicated", logicalException.getExceptions().get(0).getCode());
+        assertEquals(1, businessException.getExceptions().size());
+        assertEquals("userId", businessException.getExceptions().get(0).getField());
+        assertEquals("Duplicated", businessException.getExceptions().get(0).getCode());
 
-        logicalException = assertThrows(LogicalException.class, () -> {
+        businessException = assertThrows(BusinessException.class, () -> {
             memberService.signUpMember(member3);
         });
-        assertEquals(1, logicalException.getExceptions().size());
-        assertEquals("phoneNumber", logicalException.getExceptions().get(0).getField());
-        assertEquals("Duplicated", logicalException.getExceptions().get(0).getCode());
+        assertEquals(1, businessException.getExceptions().size());
+        assertEquals("phoneNumber", businessException.getExceptions().get(0).getField());
+        assertEquals("Duplicated", businessException.getExceptions().get(0).getCode());
 
-        logicalException = assertThrows(LogicalException.class, () -> {
+        businessException = assertThrows(BusinessException.class, () -> {
             memberService.signUpMember(member1);
         });
-        assertEquals(2, logicalException.getExceptions().size());
+        assertEquals(2, businessException.getExceptions().size());
 
         assertEquals(member4, memberService.signUpMember(member4));
     }

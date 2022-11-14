@@ -14,15 +14,15 @@ public class ExceptionAdvisor {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseDTO handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return ResponseDTO.builder()
-                          .errors(ExceptionSummary.byBindingResult(ex.getBindingResult()))
+                          .errors(ExceptionSummary.of(ex.getBindingResult()))
                           .build();
     }
 
-    @ExceptionHandler(LogicalException.class)
+    @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    protected ResponseDTO handleLogicalException(LogicalException e) {
+    protected ResponseDTO handleLogicalException(BusinessException ex) {
         return ResponseDTO.builder()
-                          .errors(e.exceptions)
+                          .errors(ExceptionSummary.of(ex))
                           .build();
     }
 }
