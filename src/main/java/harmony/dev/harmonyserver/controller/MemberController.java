@@ -7,11 +7,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.NonUniqueResultException;
 import javax.validation.Valid;
 
 import java.util.Map;
 
+/**
+ * Member 관련 요청을 처리
+ * @see harmony.dev.harmonyserver.Exception.ExceptionAdvisor
+ * @throws MethodArgumentNotValidException    @Valid 조건에 맞지 않음
+ * @throws HttpMessageNotReadableException    json 파싱 중 에러 발생
+ * @throws HttpMediaTypeNotSupportedException body type이 json이 아님
+ */
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
@@ -19,46 +25,28 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // FIXME: Update comment
     /**
-     * 회원 검색 API
-     * Method Code: 10
-     * Required: None (But one must come in)
-     * Field: user_id, phone_number
-     * Error Type
-        * 1001: Duplicate data exists within the server.
+     * @param userId
+     * @param phoneNumber
+     * @return 주어진 param과 일치하는 member 목록 반환
      */
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public ResponseDTO getMembers(@RequestParam Map<String, String> params) {
         return ResponseDTO.builder()
-                          .data(memberService.getMembers(params))  // FIXME: Use DTO
+                          .data(Member.ResponseDto.from(memberService.getMembers(params)))
                           .build();
    }
 
-    // FIXME: Update comment
     /**
-     * 회원 가입 API
-     * Method Code: 11
-     * Required: user_id, password, phone_number
-     * Error Type
-         * 1101: Duplicate for user_id
-         * 1102: Duplicate for phone_number
-         * 1103: Duplicate data exists within the server.
+     * @return 가입에 성공한 경우 member 정보 반환
+     * @throws BusinessException 같은 정보로 가입한 회원이 이미 존재
      */
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseDTO signUpMember(@Valid @RequestBody Member member){
         return ResponseDTO.builder()
-                          .data(memberService.signUpMember(member))  // FIXME: Use DTO
-                          .build();
-    }
-
-    @ExceptionHandler(NonUniqueResultException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected ResponseDTO handleLogicalException(NonUniqueResultException e) {
-        return ResponseDTO.builder()
-                          // TODO: Add .errors()
+                          .data(Member.ResponseDto.from(memberService.signUpMember(member)))
                           .build();
     }
 }

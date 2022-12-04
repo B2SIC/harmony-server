@@ -5,7 +5,6 @@ import java.util.List;
 
 import lombok.Getter;
 
-// FIXME: Add JavaDoc
 @Getter
 public class BusinessException extends RuntimeException {
     List<ExceptionSummary> exceptions;

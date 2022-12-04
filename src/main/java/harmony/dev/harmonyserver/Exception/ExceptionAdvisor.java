@@ -1,6 +1,10 @@
 package harmony.dev.harmonyserver.Exception;
 
+import java.util.ArrayList;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -15,6 +19,30 @@ public class ExceptionAdvisor {
     protected ResponseDTO handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return ResponseDTO.builder()
                           .errors(ExceptionSummary.of(ex.getBindingResult()))
+                          .build();
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseDTO handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        ArrayList<ExceptionSummary> errors = new ArrayList<>();
+        errors.add(ExceptionSummary.builder()
+                                   .code("UnreadableMessage")
+                                   .build());
+        return ResponseDTO.builder()
+                          .errors(errors)
+                          .build();
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseDTO handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
+        ArrayList<ExceptionSummary> errors = new ArrayList<>();
+        errors.add(ExceptionSummary.builder()
+                                   .code("UnsupportedType")
+                                   .build());
+        return ResponseDTO.builder()
+                          .errors(errors)
                           .build();
     }
 
