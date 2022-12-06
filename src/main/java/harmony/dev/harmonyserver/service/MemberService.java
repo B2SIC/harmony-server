@@ -24,7 +24,10 @@ public class MemberService {
     }
 
     public List<Member> getMembers(Map<String, String> params) {
-        if (params.isEmpty()) {
+        String userId = params.get("userId");
+        String phoneNumber = params.get("phoneNumber");
+
+        if (userId == null && phoneNumber == null) {
             BusinessException e = new BusinessException();
             e.add(ExceptionSummary.builder()
                             .field("userId or phoneNumber")
@@ -33,10 +36,7 @@ public class MemberService {
                             .build());
             e.peekaboo();
         }
-        return memberRepository.findByOptionalParameters(
-                params.get("userId"),
-                params.get("phoneNumber")
-        );
+        return memberRepository.findByOptionalParameters(userId, phoneNumber);
     }
 
     public Member signUpMember(Member member) {
