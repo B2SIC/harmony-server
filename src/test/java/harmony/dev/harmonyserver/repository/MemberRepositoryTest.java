@@ -6,13 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
-
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -27,19 +23,21 @@ public class MemberRepositoryTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        Optional<Member> uniqueMember;
+        List<Member> uniqueMember;
         List<Member> searchResult;
 
         uniqueMember = memberRepository.findByUserId(member1.getUserId());
-        assertTrue(uniqueMember.isPresent());
-        assertEquals(member1, uniqueMember.get());
+        assertTrue(!uniqueMember.isEmpty());
+        assertEquals(uniqueMember.size(), 1);
+        assertEquals(member1, uniqueMember.get(0));
 
         uniqueMember = memberRepository.findByPhoneNumber(member1.getPhoneNumber());
-        assertTrue(uniqueMember.isPresent());
-        assertEquals(member1, uniqueMember.get());
+        assertTrue(!uniqueMember.isEmpty());
+        assertEquals(uniqueMember.size(), 1);
+        assertEquals(member1, uniqueMember.get(0));
 
         uniqueMember = memberRepository.findByUserId("invalid");
-        assertFalse(uniqueMember.isPresent());
+        assertFalse(!uniqueMember.isEmpty());
 
         searchResult = memberRepository.findByOptionalParameters(null, null);
         assertEquals(2, searchResult.size());

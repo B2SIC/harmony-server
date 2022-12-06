@@ -24,10 +24,18 @@ public class MemberService {
     }
 
     public List<Member> getMembers(Map<String, String> params) {
-        // FIXME: Use constants
+        if (params.isEmpty()) {
+            BusinessException e = new BusinessException();
+            e.add(ExceptionSummary.builder()
+                            .field("userId or phoneNumber")
+                            .code("NotFound")
+                            .message("Parameter Not Found")
+                            .build());
+            e.peekaboo();
+        }
         return memberRepository.findByOptionalParameters(
-            params.get("userId"),
-            params.get("phoneNumber")
+                params.get("userId"),
+                params.get("phoneNumber")
         );
     }
 
@@ -40,14 +48,14 @@ public class MemberService {
     private void validateBeforeSignupMember(Member member) {
         // FIXME: Use constants
         BusinessException e = new BusinessException();
-        if (memberRepository.findByUserId(member.getUserId()).isPresent()) {
+        if (!memberRepository.findByUserId(member.getUserId()).isEmpty()) {
             e.add(ExceptionSummary.builder()
                                   .field("userId")
                                   .value(member.getUserId())
                                   .code("Duplicated")
                                   .build());
         }
-        if (memberRepository.findByPhoneNumber(member.getPhoneNumber()).isPresent()) {
+        if (!memberRepository.findByPhoneNumber(member.getPhoneNumber()).isEmpty()) {
             e.add(ExceptionSummary.builder()
                                   .field("phoneNumber")
                                   .value(member.getPhoneNumber())
