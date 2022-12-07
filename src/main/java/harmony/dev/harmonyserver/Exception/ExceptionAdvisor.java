@@ -48,7 +48,7 @@ public class ExceptionAdvisor {
 
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    protected ResponseDTO handleLogicalException(BusinessException ex) {
+    protected ResponseDTO handleBusinessException(BusinessException ex) {
         return ResponseDTO.builder()
                           .errors(ExceptionSummary.of(ex))
                           .build();
