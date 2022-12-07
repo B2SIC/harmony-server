@@ -25,12 +25,10 @@ public class ExceptionAdvisor {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseDTO handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        ArrayList<ExceptionSummary> errors = new ArrayList<>();
-        errors.add(ExceptionSummary.builder()
-                                   .code("UnreadableMessage")
-                                   .build());
         return ResponseDTO.builder()
-                          .errors(errors)
+                          .errors(List.of(ExceptionSummary.builder()
+                                                          .code("UnreadableMessage")
+                                                          .build()))
                           .build();
     }
 
