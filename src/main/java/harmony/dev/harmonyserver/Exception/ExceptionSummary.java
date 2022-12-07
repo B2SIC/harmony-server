@@ -32,6 +32,6 @@ public class ExceptionSummary {
     }
 
     public static List<ExceptionSummary> of(BusinessException businessException) {
-        return businessException.exceptions;
+        return businessException.getExceptions();
     }
 }
