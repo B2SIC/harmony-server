@@ -30,9 +30,8 @@ public class MemberService {
         if (userId == null && phoneNumber == null) {
             BusinessException e = new BusinessException();
             e.add(ExceptionSummary.builder()
-                            .field("userId or phoneNumber")
                             .code("NotFound")
-                            .message("Parameter Not Found")
+                            .message("No parameter given")
                             .build());
             e.peekaboo();
         }
