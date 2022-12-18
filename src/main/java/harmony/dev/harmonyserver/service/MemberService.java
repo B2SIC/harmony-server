@@ -1,15 +1,13 @@
 package harmony.dev.harmonyserver.service;
 
-import harmony.dev.harmonyserver.Exception.ExceptionSummary;
 import harmony.dev.harmonyserver.Exception.BusinessException;
+import harmony.dev.harmonyserver.Exception.ExceptionSummary;
 import harmony.dev.harmonyserver.domain.Member;
 import harmony.dev.harmonyserver.repository.MemberRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-
 import java.util.List;
 import java.util.Map;
 
@@ -62,5 +60,30 @@ public class MemberService {
                                   .build());
         }
         e.peekaboo();
+    }
+
+    public Member login(String userId, String password) {
+        List<Member> userList = memberRepository.findByUserId(userId);
+        BusinessException e = new BusinessException();
+
+        Member findUser = null;
+        if (userList.isEmpty()) {
+            e.add(ExceptionSummary.builder()
+                            .field("userId")
+                            .value(userId)
+                            .code("Not Exist")
+                            .build());
+            e.peekaboo();
+        } else {
+            findUser = userList.get(0);
+            if (!findUser.getPassword().equals(password)) {
+                e.add(ExceptionSummary.builder()
+                                .field("password")
+                                .code("Mismatch")
+                                .build());
+                e.peekaboo();
+            }
+        }
+        return findUser;
     }
 }
