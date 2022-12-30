@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.persistence.NonUniqueResultException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,16 @@ public class ExceptionAdvisor {
         return ResponseDTO.builder()
                           .errors(errors)
                           .build();
+    }
+
+    @ExceptionHandler(NonUniqueResultException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    protected ResponseDTO handleNonUniqueResultException(NonUniqueResultException ex) {
+        return ResponseDTO.builder()
+                .errors(List.of(ExceptionSummary.builder()
+                                .code("NonUniqueResult")
+                                .build()))
+                .build();
     }
 
     @ExceptionHandler(BusinessException.class)

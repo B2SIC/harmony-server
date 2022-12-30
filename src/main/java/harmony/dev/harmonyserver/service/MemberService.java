@@ -4,22 +4,21 @@ import harmony.dev.harmonyserver.Exception.BusinessException;
 import harmony.dev.harmonyserver.Exception.ExceptionSummary;
 import harmony.dev.harmonyserver.domain.Member;
 import harmony.dev.harmonyserver.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import harmony.dev.harmonyserver.security.jwt.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.NonUniqueResultException;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 @Transactional  // FIXME: Move to each transaction method
 public class MemberService {
     private final MemberRepository memberRepository;
-
-    @Autowired
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
+    private final JwtTokenProvider jwtTokenProvider;
 
     public List<Member> getMembers(Map<String, String> params) {
         String userId = params.get("userId");
@@ -33,7 +32,12 @@ public class MemberService {
                             .build());
             e.peekaboo();
         }
-        return memberRepository.findByOptionalParameters(userId, phoneNumber);
+
+        List<Member> memberList = memberRepository.findByOptionalParameters(userId, phoneNumber);
+        if (memberList.size() >= 2) {
+            throw new NonUniqueResultException();
+        }
+        return memberList;
     }
 
     public Member signUpMember(Member member) {
@@ -62,28 +66,23 @@ public class MemberService {
         e.peekaboo();
     }
 
-    public Member login(String userId, String password) {
+    public Map<String, String> login(String userId, String password) {
         List<Member> userList = memberRepository.findByUserId(userId);
         BusinessException e = new BusinessException();
 
-        Member findUser = null;
         if (userList.isEmpty()) {
             e.add(ExceptionSummary.builder()
-                            .field("userId")
-                            .value(userId)
-                            .code("Not Exist")
+                            .message("Login Fail")
                             .build());
             e.peekaboo();
-        } else {
-            findUser = userList.get(0);
-            if (!findUser.getPassword().equals(password)) {
-                e.add(ExceptionSummary.builder()
-                                .field("password")
-                                .code("Mismatch")
-                                .build());
-                e.peekaboo();
-            }
         }
-        return findUser;
+        Member findUser = userList.get(0);
+        if (!findUser.getPassword().equals(password)) {
+            e.add(ExceptionSummary.builder()
+                            .message("Login Fail")
+                            .build());
+            e.peekaboo();
+        }
+        return jwtTokenProvider.createToken(findUser.getUserId());
     }
 }
