@@ -14,7 +14,6 @@ public class MemberDTO {
 
     @Getter
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class Request {
         @NotNull @Pattern(regexp = "[a-z][a-z0-9]{3,15}")
         private String userId;
@@ -51,7 +50,6 @@ public class MemberDTO {
 
     @Getter
     @NoArgsConstructor
-    @AllArgsConstructor
     public static class LoginRequest {
         private String userId;
         private String password;

@@ -8,7 +8,6 @@ import harmony.dev.harmonyserver.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.NonUniqueResultException;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +31,7 @@ public class MemberService {
                             .build());
             e.peekaboo();
         }
-
-        List<Member> memberList = memberRepository.findByOptionalParameters(userId, phoneNumber);
-        if (memberList.size() >= 2) {
-            throw new NonUniqueResultException();
-        }
-        return memberList;
+        return memberRepository.findByOptionalParameters(userId, phoneNumber);
     }
 
     public Member signUpMember(Member member) {
@@ -68,20 +62,21 @@ public class MemberService {
 
     public Map<String, String> login(String userId, String password) {
         List<Member> userList = memberRepository.findByUserId(userId);
-        BusinessException e = new BusinessException();
 
         if (userList.isEmpty()) {
-            e.add(ExceptionSummary.builder()
+            new BusinessException(
+                    ExceptionSummary.builder()
                             .message("Login Fail")
-                            .build());
-            e.peekaboo();
+                            .build()
+            ).peekaboo();
         }
         Member findUser = userList.get(0);
         if (!findUser.getPassword().equals(password)) {
-            e.add(ExceptionSummary.builder()
+            new BusinessException(
+                    ExceptionSummary.builder()
                             .message("Login Fail")
-                            .build());
-            e.peekaboo();
+                            .build()
+            ).peekaboo();
         }
         return jwtTokenProvider.createToken(findUser.getUserId());
     }
