@@ -2,9 +2,10 @@ package harmony.dev.harmonyserver.repository;
 
 import harmony.dev.harmonyserver.domain.Member;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DefaultMemberRepository implements MemberRepository {
@@ -22,22 +23,25 @@ public class DefaultMemberRepository implements MemberRepository {
     }
 
     @Override
-    public List<Member> findByOptionalParameters(String userId, String phoneNumber) {
+    @Transactional(readOnly = true)
+    public Optional<Member> findByOptionalParameters(String userId, String phoneNumber) {
         return em.createQuery("SELECT m FROM Member m WHERE 1 = 1"
                 + " AND (:userId is null OR m.userId = :userId)"
                 + " AND (:phoneNumber is null OR m.phoneNumber = :phoneNumber)", Member.class)
                 .setParameter("userId", userId)
                 .setParameter("phoneNumber", phoneNumber)
-                .getResultList();
+                .getResultStream().findAny();
     }
 
     @Override
-    public List<Member> findByUserId(String userId) {
+    @Transactional(readOnly = true)
+    public Optional<Member> findByUserId(String userId) {
         return findByOptionalParameters(userId, null);
     }
 
     @Override
-    public List<Member> findByPhoneNumber(String phoneNumber) {
+    @Transactional(readOnly = true)
+    public Optional<Member> findByPhoneNumber(String phoneNumber) {
         return findByOptionalParameters(null, phoneNumber);
     }
 }

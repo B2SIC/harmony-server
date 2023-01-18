@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -18,11 +18,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        List<Member> getMember = memberRepository.findByUserId(userId);
-
-        if (getMember.size() != 1) {
+        Optional<Member> getMember = memberRepository.findByUserId(userId);
+        if (getMember.isEmpty()) {
             throw new UsernameNotFoundException("사용자 정보 없음");
         }
-        return new UserDetailsImpl(getMember.get(0));
+        return new UserDetailsImpl(getMember.get());
     }
 }

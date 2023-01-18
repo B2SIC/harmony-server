@@ -38,8 +38,8 @@ public class MemberController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseDTO getMembers(@RequestParam Map<String, String> params) {
         return ResponseDTO.builder()
-                          .data(MemberDTO.Response.from(memberService.getMembers(params)))
-                          .build();
+                .data(memberService.getMembers(params).map(MemberDTO.Response::from).orElse(null))
+                .build();
    }
 
     /**
@@ -50,8 +50,8 @@ public class MemberController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseDTO signUpMember(@Valid @RequestBody MemberDTO.Request request){
         return ResponseDTO.builder()
-                          .data(MemberDTO.Response.from(memberService.signUpMember(request.toEntity())))
-                          .build();
+                .data(MemberDTO.Response.from(memberService.signUpMember(request.toEntity())))
+                .build();
     }
 
     @PostMapping("/auth")

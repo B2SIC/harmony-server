@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
-import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,28 +25,26 @@ public class MemberRepositoryTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        List<Member> uniqueMember;
-        List<Member> searchResult;
+        Optional<Member> uniqueMember;
+        Optional<Member> searchResult;
 
         uniqueMember = memberRepository.findByUserId(member1.getUserId());
 
-        assertThat(uniqueMember.isEmpty()).isFalse();
-        assertThat(uniqueMember.size()).isEqualTo(1);
-        assertThat(uniqueMember.get(0)).isEqualTo(member1);
+        assertThat(uniqueMember.isPresent()).isTrue();
+        assertThat(uniqueMember.get()).isEqualTo(member1);
 
         uniqueMember = memberRepository.findByPhoneNumber(member1.getPhoneNumber());
-        assertThat(uniqueMember.isEmpty()).isFalse();
-        assertThat(uniqueMember.size()).isEqualTo(1);
-        assertThat(uniqueMember.get(0)).isEqualTo(member1);
+        assertThat(uniqueMember.isPresent()).isTrue();
+        assertThat(uniqueMember.get()).isEqualTo(member1);
 
         uniqueMember = memberRepository.findByUserId("invalid");
-        assertThat(uniqueMember.isEmpty()).isTrue();
+        assertThat(uniqueMember.isPresent()).isFalse();
 
         searchResult = memberRepository.findByOptionalParameters(member1.getUserId(), null);
-        assertThat(searchResult.size()).isEqualTo(1);
-        assertThat(searchResult.get(0)).isEqualTo(member1);
+        assertThat(searchResult.isPresent()).isTrue();
+        assertThat(searchResult.get()).isEqualTo(member1);
 
         searchResult = memberRepository.findByOptionalParameters(member1.getUserId(), member2.getPhoneNumber());
-        assertThat(searchResult.size()).isEqualTo(0);
+        assertThat(searchResult.isPresent()).isFalse();
     }
 }
